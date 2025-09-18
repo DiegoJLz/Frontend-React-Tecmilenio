@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthService } from '../../../services';
+import Logo from '../../../components/ui/Logo';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
@@ -95,54 +96,56 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFD700] via-[#4DD0E1] to-[#006064] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center">
-            <svg
-              className="h-8 w-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
+          <div className="flex justify-center mb-6">
+            <Logo size="lg" />
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <h2 className="text-3xl font-extrabold text-white drop-shadow-lg">
             Verifica tu email
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-white/90">
             Te hemos enviado un enlace de verificación
           </p>
         </div>
 
         {/* Main Content */}
-        <div className="bg-white py-8 px-6 shadow-lg rounded-lg">
-          <div className="space-y-6">
+        <div className="bg-white/95 backdrop-blur-sm py-8 px-6 shadow-2xl rounded-2xl border border-white/20 relative overflow-hidden">
+          {/* Decorative elements inside form */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#FFD700]/10 to-[#4DD0E1]/10 rounded-full -translate-y-16 translate-x-16"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#4DD0E1]/10 to-[#006064]/10 rounded-full translate-y-12 -translate-x-12"></div>
+
+          <div className="space-y-6 relative z-10">
             {/* Email Display */}
             {email && (
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-2">
                   Hemos enviado un email de verificación a:
                 </p>
-                <p className="font-medium text-gray-900 bg-gray-50 px-4 py-2 rounded-md">
+                <p className="font-medium text-[#006064] bg-gradient-to-r from-[#FFD700]/10 to-[#4DD0E1]/10 px-4 py-3 rounded-xl border border-[#4DD0E1]/20">
                   {email}
                 </p>
               </div>
             )}
 
             {/* Instructions */}
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-              <h3 className="font-medium text-blue-800 mb-2">📧 Instrucciones:</h3>
-              <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+            <div className="bg-gradient-to-r from-[#4DD0E1]/10 to-[#0097A7]/10 border border-[#4DD0E1]/20 rounded-xl p-4">
+              <h3 className="font-semibold text-[#006064] mb-3 flex items-center">
+                <span className="text-lg mr-2">📧</span>
+                Instrucciones:
+              </h3>
+              <ol className="text-sm text-[#0097A7] space-y-2 list-decimal list-inside">
                 <li>Revisa tu bandeja de entrada</li>
-                <li>Busca un email de "Local Experiences"</li>
+                <li>Busca un email de "TECMYEXPLORER"</li>
                 <li>Haz clic en el enlace de verificación</li>
                 <li>Si no lo encuentras, revisa la carpeta de spam</li>
               </ol>
@@ -150,7 +153,7 @@ export default function VerifyEmailPage() {
 
             {/* Success Message */}
             {message && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+              <div className="bg-green-50 border-l-4 border-green-400 text-green-700 px-4 py-3 rounded-r-lg">
                 <div className="flex items-center">
                   <svg className="h-5 w-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -162,9 +165,9 @@ export default function VerifyEmailPage() {
 
             {/* Verifying Message */}
             {verifying && (
-              <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md">
+              <div className="bg-gradient-to-r from-[#4DD0E1]/10 to-[#0097A7]/10 border border-[#4DD0E1]/20 text-[#006064] px-4 py-3 rounded-xl">
                 <div className="flex items-center">
-                  <svg className="animate-spin h-5 w-5 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-5 w-5 text-[#4DD0E1] mr-2" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -175,7 +178,7 @@ export default function VerifyEmailPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+              <div className="bg-red-50 border-l-4 border-red-400 text-red-700 px-4 py-3 rounded-r-lg">
                 <div className="flex items-center">
                   <svg className="h-5 w-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -190,7 +193,7 @@ export default function VerifyEmailPage() {
               <button
                 onClick={handleResendEmail}
                 disabled={loading || verifying || !email}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-4 px-6 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-[#006064] to-[#0097A7] hover:from-[#004D40] hover:to-[#006064] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4DD0E1] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
               >
                 {loading ? (
                   <div className="flex items-center">
@@ -209,7 +212,7 @@ export default function VerifyEmailPage() {
               <button
                 onClick={handleChangeEmail}
                 disabled={verifying}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-6 border-2 border-[#4DD0E1] rounded-xl shadow-sm text-sm font-semibold text-[#006064] hover:bg-[#4DD0E1]/10 hover:border-[#0097A7] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4DD0E1] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 ✏️ Cambiar email
               </button>
@@ -218,9 +221,12 @@ export default function VerifyEmailPage() {
         </div>
 
         {/* Help Section */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-          <h3 className="font-medium text-yellow-800 mb-2">❓ ¿Necesitas ayuda?</h3>
-          <div className="text-sm text-yellow-700 space-y-1">
+        <div className="bg-gradient-to-r from-[#FFD700]/10 to-[#FFEB3B]/10 border border-[#FFD700]/20 rounded-xl p-4">
+          <h3 className="font-semibold text-[#006064] mb-3 flex items-center">
+            <span className="text-lg mr-2">❓</span>
+            ¿Necesitas ayuda?
+          </h3>
+          <div className="text-sm text-[#0097A7] space-y-2">
             <p>• El email puede tardar unos minutos en llegar</p>
             <p>• Revisa tu carpeta de spam o correo no deseado</p>
             <p>• Si el problema persiste, contacta a soporte</p>

@@ -1,79 +1,44 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { LoginCredentials } from '../../../types';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AuthService } from '../../../services';
 import Logo from '../../../components/ui/Logo';
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  const [formData, setFormData] = useState<LoginCredentials>({
-    email: '',
-    password: '',
-  });
-
-  useEffect(() => {
-    // Check if user was redirected from email verification
-    const verified = searchParams.get('verified');
-    if (verified === 'true') {
-      setSuccess('¡Email verificado exitosamente! Ya puedes iniciar sesión.');
-
-      // Clean the URL by removing the query parameter
-      const url = new URL(window.location.href);
-      url.searchParams.delete('verified');
-      window.history.replaceState({}, '', url.toString());
-    }
-
-    // Check if user was redirected from password reset
-    const passwordReset = searchParams.get('password_reset');
-    if (passwordReset === 'true') {
-      setSuccess('¡Contraseña restablecida exitosamente! Ya puedes iniciar sesión con tu nueva contraseña.');
-
-      // Clean the URL by removing the query parameter
-      const url = new URL(window.location.href);
-      url.searchParams.delete('password_reset');
-      window.history.replaceState({}, '', url.toString());
-    }
-  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setSuccess(''); // Clear any previous success message
+    setMessage('');
 
     try {
-      console.log('🚀 Enviando datos de login:', formData);
+      console.log('🔄 Enviando solicitud de recuperación de contraseña para:', email);
 
-      const user = await AuthService.login(formData);
+      await AuthService.forgotPassword(email);
 
-      console.log('✅ Login exitoso:', user);
-      setSuccess('¡Inicio de sesión exitoso! Redirigiendo...');
+      setMessage('¡Email de recuperación enviado! Revisa tu bandeja de entrada.');
+      console.log('✅ Email de recuperación enviado exitosamente');
 
-      // Store user data in localStorage
-      localStorage.setItem('user', JSON.stringify(user));
-
-      // Redirigir al dashboard después de 1 segundo
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1000);
+      // Clear form after successful submission
+      setEmail('');
 
     } catch (err: any) {
-      console.error('❌ Error en el login:', err);
-      setError(err.message || 'Error al iniciar sesión');
+      console.error('❌ Error al enviar email de recuperación:', err);
+      setError(err.message || 'Error al enviar el email de recuperación');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (field: keyof LoginCredentials, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleGoBack = () => {
+    router.push('/login');
   };
 
   return (
@@ -92,10 +57,10 @@ export default function LoginPage() {
             <Logo size="lg" />
           </div>
           <h2 className="text-3xl font-extrabold text-white drop-shadow-lg">
-            Iniciar sesión
+            Recuperar contraseña
           </h2>
           <p className="mt-2 text-sm text-white/90">
-            Accede a tu cuenta de TECMYEXPLORER
+            Te enviaremos un enlace para restablecer tu contraseña
           </p>
         </div>
 
@@ -119,18 +84,32 @@ export default function LoginPage() {
             )}
 
             {/* Success Message */}
-            {success && (
+            {message && (
               <div className="bg-green-50 border-l-4 border-green-400 text-green-700 px-4 py-3 rounded-r-lg">
                 <div className="flex items-center">
                   <svg className="h-5 w-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  {success}
+                  {message}
                 </div>
               </div>
             )}
 
-            {/* Email */}
+            {/* Instructions */}
+            <div className="bg-gradient-to-r from-[#4DD0E1]/10 to-[#0097A7]/10 border border-[#4DD0E1]/20 rounded-xl p-4">
+              <h3 className="font-semibold text-[#006064] mb-3 flex items-center">
+                <span className="text-lg mr-2">🔑</span>
+                Instrucciones:
+              </h3>
+              <ol className="text-sm text-[#0097A7] space-y-2 list-decimal list-inside">
+                <li>Ingresa tu email registrado</li>
+                <li>Te enviaremos un enlace de recuperación</li>
+                <li>Revisa tu bandeja de entrada</li>
+                <li>Haz clic en el enlace para restablecer tu contraseña</li>
+              </ol>
+            </div>
+
+            {/* Email Input */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-[#006064] mb-2">
                 Email *
@@ -139,36 +118,12 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 required
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
                 className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4DD0E1] focus:border-[#4DD0E1] transition-all duration-200 bg-white text-black"
                 disabled={loading}
               />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-[#006064] mb-2">
-                Contraseña *
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                placeholder="Tu contraseña"
-                className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4DD0E1] focus:border-[#4DD0E1] transition-all duration-200 bg-white text-black"
-                disabled={loading}
-              />
-            </div>
-
-            {/* Forgot Password Link */}
-            <div className="text-right">
-              <a href="/forgot-password" className="text-sm text-[#006064] hover:text-[#0097A7] transition-colors duration-200">
-                ¿Olvidaste tu contraseña?
-              </a>
             </div>
 
             {/* Submit Button */}
@@ -183,23 +138,38 @@ export default function LoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Iniciando sesión...
+                  Enviando...
                 </div>
               ) : (
-                'Iniciar sesión'
+                'Enviar enlace de recuperación'
               )}
             </button>
 
-            {/* Register Link */}
+            {/* Back to Login */}
             <div className="text-center">
-              <p className="text-sm text-gray-600">
-                ¿No tienes una cuenta?{' '}
-                <a href="/register" className="font-medium text-[#006064] hover:text-[#0097A7] transition-colors duration-200">
-                  Regístrate aquí
-                </a>
-              </p>
+              <button
+                type="button"
+                onClick={handleGoBack}
+                className="text-sm text-[#006064] hover:text-[#0097A7] transition-colors duration-200"
+              >
+                ← Volver al inicio de sesión
+              </button>
             </div>
           </form>
+        </div>
+
+        {/* Help Section */}
+        <div className="bg-gradient-to-r from-[#FFD700]/10 to-[#FFEB3B]/10 border border-[#FFD700]/20 rounded-xl p-4">
+          <h3 className="font-semibold text-[#006064] mb-3 flex items-center">
+            <span className="text-lg mr-2">❓</span>
+            ¿Necesitas ayuda?
+          </h3>
+          <div className="text-sm text-[#0097A7] space-y-2">
+            <p>• El email puede tardar unos minutos en llegar</p>
+            <p>• Revisa tu carpeta de spam o correo no deseado</p>
+            <p>• Si no recibes el email, verifica que el email sea correcto</p>
+            <p>• Si el problema persiste, contacta a soporte</p>
+          </div>
         </div>
       </div>
     </div>

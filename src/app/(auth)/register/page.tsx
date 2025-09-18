@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RegisterData } from '../../../types';
 import { AuthService } from '../../../services';
+import Logo from '../../../components/ui/Logo';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -56,39 +57,38 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFD700] via-[#4DD0E1] to-[#006064] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-blue-600 rounded-full flex items-center justify-center">
-            <svg
-              className="h-6 w-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
+          <div className="flex justify-center mb-6">
+            <Logo size="lg" />
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <h2 className="text-3xl font-extrabold text-white drop-shadow-lg">
             Crear cuenta
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-white/90">
             Únete a nuestra comunidad de experiencias locales
           </p>
         </div>
 
         {/* Form */}
-        <div className="bg-white py-8 px-6 shadow-lg rounded-lg">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white/95 backdrop-blur-sm py-8 px-6 shadow-2xl rounded-2xl border border-white/20 relative overflow-hidden">
+          {/* Decorative elements inside form */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#FFD700]/10 to-[#4DD0E1]/10 rounded-full -translate-y-16 translate-x-16"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#4DD0E1]/10 to-[#006064]/10 rounded-full translate-y-12 -translate-x-12"></div>
+
+          <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+              <div className="bg-red-50 border-l-4 border-red-400 text-red-700 px-4 py-3 rounded-r-lg">
                 <div className="flex items-center">
                   <svg className="h-5 w-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -106,13 +106,13 @@ export default function RegisterPage() {
                         <div className="mt-2 space-x-2">
                           <a
                             href="/backend-setup"
-                            className="inline-block text-blue-600 hover:text-blue-500 underline text-xs"
+                            className="inline-block text-[#006064] hover:text-[#0097A7] underline text-xs"
                           >
                             🔧 Guía de Configuración
                           </a>
                           <a
                             href="/diagnose"
-                            className="inline-block text-blue-600 hover:text-blue-500 underline text-xs"
+                            className="inline-block text-[#006064] hover:text-[#0097A7] underline text-xs"
                           >
                             🔍 Diagnóstico
                           </a>
@@ -126,7 +126,7 @@ export default function RegisterPage() {
 
             {/* Success Message */}
             {success && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+              <div className="bg-green-50 border-l-4 border-green-400 text-green-700 px-4 py-3 rounded-r-lg">
                 <div className="flex items-center">
                   <svg className="h-5 w-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -139,7 +139,7 @@ export default function RegisterPage() {
             {/* Nombre y Apellido */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="first_name" className="block text-sm font-semibold text-[#006064] mb-2">
                   Nombre *
                 </label>
                 <input
@@ -149,13 +149,13 @@ export default function RegisterPage() {
                   value={formData.first_name}
                   onChange={(e) => handleInputChange('first_name', e.target.value)}
                   placeholder="Tu nombre"
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4DD0E1] focus:border-[#4DD0E1] transition-all duration-200 bg-white text-black"
                   disabled={loading}
                 />
               </div>
 
               <div>
-                <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="last_name" className="block text-sm font-semibold text-[#006064] mb-2">
                   Apellido *
                 </label>
                 <input
@@ -165,7 +165,7 @@ export default function RegisterPage() {
                   value={formData.last_name}
                   onChange={(e) => handleInputChange('last_name', e.target.value)}
                   placeholder="Tu apellido"
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4DD0E1] focus:border-[#4DD0E1] transition-all duration-200 bg-white text-black"
                   disabled={loading}
                 />
               </div>
@@ -173,9 +173,9 @@ export default function RegisterPage() {
 
             {/* Teléfono */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                Teléfono *
-              </label>
+                <label htmlFor="phone" className="block text-sm font-semibold text-[#006064] mb-2">
+                  Teléfono *
+                </label>
               <input
                 id="phone"
                 type="tel"
@@ -190,9 +190,9 @@ export default function RegisterPage() {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email *
-              </label>
+                <label htmlFor="email" className="block text-sm font-semibold text-[#006064] mb-2">
+                  Email *
+                </label>
               <input
                 id="email"
                 type="email"
@@ -207,9 +207,9 @@ export default function RegisterPage() {
 
             {/* Contraseña */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña *
-              </label>
+                <label htmlFor="password" className="block text-sm font-semibold text-[#006064] mb-2">
+                  Contraseña *
+                </label>
               <input
                 id="password"
                 type="password"
@@ -227,9 +227,9 @@ export default function RegisterPage() {
 
             {/* Confirmar Contraseña */}
             <div>
-              <label htmlFor="confirm_password" className="block text-sm font-medium text-gray-700 mb-1">
-                Confirmar Contraseña *
-              </label>
+                <label htmlFor="confirm_password" className="block text-sm font-semibold text-[#006064] mb-2">
+                  Confirmar Contraseña *
+                </label>
               <input
                 id="confirm_password"
                 type="password"
@@ -246,7 +246,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-4 px-6 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-[#006064] to-[#0097A7] hover:from-[#004D40] hover:to-[#006064] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4DD0E1] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
             >
               {loading ? (
                 <div className="flex items-center">
@@ -265,7 +265,7 @@ export default function RegisterPage() {
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 ¿Ya tienes una cuenta?{' '}
-                <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                <a href="/login" className="font-medium text-[#006064] hover:text-[#0097A7] transition-colors duration-200">
                   Inicia sesión
                 </a>
               </p>
@@ -275,13 +275,13 @@ export default function RegisterPage() {
 
         {/* Footer */}
         <div className="text-center">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-white/80">
             Al crear una cuenta, aceptas nuestros{' '}
-            <a href="/terms" className="text-blue-600 hover:text-blue-500">
+            <a href="/terms" className="text-white hover:text-[#FFD700] transition-colors duration-200">
               Términos de Servicio
             </a>{' '}
             y{' '}
-            <a href="/privacy" className="text-blue-600 hover:text-blue-500">
+            <a href="/privacy" className="text-white hover:text-[#FFD700] transition-colors duration-200">
               Política de Privacidad
             </a>
           </p>
