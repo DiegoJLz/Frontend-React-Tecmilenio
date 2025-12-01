@@ -1,4 +1,6 @@
 // API Client for Rust backend
+import { config } from './config'; // Importamos tu configuración global
+
 export interface ApiResponse<T = any> {
   data: T;
   message: string;
@@ -23,8 +25,14 @@ class ApiClient {
   private baseUrl: string;
   private defaultHeaders: Record<string, string>;
 
-  constructor(baseUrl: string = 'http://localhost:8080') {
-    this.baseUrl = baseUrl;
+  constructor() {
+    // Usamos la configuración para obtener la URL base
+    const base = config.api.baseUrl.endsWith('/api/v1') 
+        ? config.api.baseUrl 
+        : `${config.api.baseUrl}/api/v1`;
+        
+    this.baseUrl = base;
+    
     this.defaultHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -41,7 +49,7 @@ class ApiClient {
       if (contentType?.includes('application/json')) {
         try {
           const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
+          errorMessage = errorData.message || errorData.detail || errorMessage;
           errors = errorData.errors;
         } catch {
           // Fallback to status text if JSON parsing fails
@@ -70,24 +78,13 @@ class ApiClient {
     try {
       const data = await response.json();
 
-      // Handle different response formats from Rust backend
-      if (data.success !== undefined) {
-        // Backend returns { success, data, message } format
-        return {
-          data: data.data,
-          message: data.message || 'Success',
-          success: data.success,
-          status: response.status,
-        };
-      } else {
-        // Backend returns data directly
-        return {
-          data: data,
-          message: 'Success',
-          success: true,
-          status: response.status,
-        };
-      }
+      // Backend returns { success, data, message } format
+      return {
+        data: data.data || data, 
+        message: data.message || 'Success',
+        success: data.success ?? true, 
+        status: response.status,
+      };
     } catch (parseError) {
       const error: ApiError = {
         message: 'Failed to parse response',
@@ -99,28 +96,30 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    config: RequestConfig = {}
+    options: RequestConfig = {} // <-- FIX: Renombrado a 'options'
   ): Promise<ApiResponse<T>> {
     const {
       method = 'GET',
       headers = {},
       body,
       credentials = 'include',
-    } = config;
+    } = options; // <-- Usamos 'options'
 
-    const url = `${this.baseUrl}${endpoint}`;
+    const url = `${this.baseUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
     const requestConfig: RequestInit = {
       method,
+      credentials,
       headers: {
         ...this.defaultHeaders,
         ...headers,
       },
+      // FIX: Ahora usa el 'config' global importado, sin conflicto de nombres.
+      signal: AbortSignal.timeout(config.api.timeout), 
     };
 
     if (body && method !== 'GET') {
       if (body instanceof FormData) {
-        // Remove Content-Type for FormData to let browser set it with boundary
         delete (requestConfig.headers as Record<string, string>)['Content-Type'];
         requestConfig.body = body;
       } else {
@@ -129,50 +128,24 @@ class ApiClient {
     }
 
     try {
-      console.log('🌐 Making request to:', url);
-      console.log('📋 Request config:', {
-        method,
-        headers: requestConfig.headers,
-        body: requestConfig.body,
-        mode: requestConfig.mode,
-      });
-
       const response = await fetch(url, requestConfig);
-
-      console.log('📡 Response received:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
-      });
-
       return await this.handleResponse<T>(response);
     } catch (error) {
+      if (error instanceof DOMException && error.name === 'TimeoutError') {
+         throw { message: 'Request timed out.', status: 408 } as ApiError;
+      }
+      
       console.error('❌ Request failed:', error);
-
-      // Check if it's a network error (backend not running)
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        const networkError: ApiError = {
-          message: 'Network error: Unable to connect to server. Please check if the backend is running on port 8080.',
-          status: 0,
-        };
-        throw networkError;
+      
+      const isNetworkError = error instanceof TypeError || (error as Error).message.includes('fetch');
+      if (isNetworkError) {
+        throw { 
+          message: 'Error de red: No se pudo conectar con el servidor API. Revisa que el backend esté activo.', 
+          status: 0 
+        } as ApiError;
       }
 
-      // Check if it's a CORS error
-      if (error instanceof TypeError && error.message.includes('CORS')) {
-        const corsError: ApiError = {
-          message: 'CORS error: The backend server needs to allow requests from this origin.',
-          status: 0,
-        };
-        throw corsError;
-      }
-
-      // For other errors, just pass them through
-      const genericError: ApiError = {
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
-        status: 0,
-      };
-      throw genericError;
+      throw error; 
     }
   }
 

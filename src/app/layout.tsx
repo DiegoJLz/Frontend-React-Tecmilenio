@@ -7,7 +7,6 @@ import "./globals.css";
 import Header from '@/components/layout/Header'; 
 import NavBar from '@/components/layout/NavBar';
 import Footer from '@/components/layout/Footer';
-import { secondaryColor } from '@/lib/data'; 
 
 // Definiciones de las fuentes
 const geistSans = Geist({
@@ -34,7 +33,8 @@ export default function RootLayout({
     // Es CRUCIAL que el body comience inmediatamente después de <html>
     <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body
-        className={`antialiased min-h-screen font-sans ${secondaryColor}`}
+      suppressHydrationWarning={true}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900`}
       >
         <Header />
         <NavBar /> 

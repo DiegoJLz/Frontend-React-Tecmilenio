@@ -1,40 +1,43 @@
-// src/app/parques/page.tsx (CÓDIGO FINAL DE PARQUES)
-import ParkCard from '@/components/views/ParkCard';
-import { parkItems, ParkItem } from '@/lib/data';
+import React from 'react';
+import { MOCK_EXPERIENCES } from '@/lib/data'; // Usamos la nueva data maestra
+import ExperienceCard from '@/components/ui/ExperienceCard'; // Usamos la tarjeta estándar
 import { Trees } from 'lucide-react';
 
-async function getParksData(): Promise<ParkItem[]> {
-    // Aquí podrías hacer fetch('https://api.tuproyecto.com/parks')
-    return parkItems; 
-}
+export default function ParquesPage() {
+  // Filtramos solo las experiencias que sean de categoría 'Naturaleza'
+  const parkExperiences = MOCK_EXPERIENCES.filter(exp => 
+    exp.category?.name.includes('Naturaleza') || 
+    exp.category?.name.includes('Parque')
+  );
 
-export default async function ParquesPage() {
-    const parks = await getParksData();
-
-    return (
-        <div className="py-8 animate-fadeIn bg-white p-6 rounded-xl shadow-2xl">
-            <h1 className="text-4xl font-extrabold text-teal-800 mb-8 border-b-4 border-amber-400 pb-2 flex items-center">
-                <Trees size={40} className="mr-2 text-teal-600"/>
-                Parques y Maravillas Naturales en México
-            </h1>
-            
-            <p className="text-lg text-gray-700 mb-10">
-                Explora nuestra selección de los mejores parques y áreas naturales de distintos estados del país, incluyendo Jalisco, Ciudad de México y Nuevo León.
-            </p>
-
-            {/* Agrupación dinámica por Estado */}
-            {Array.from(new Set(parks.map(p => p.location))).map(location => (
-                <div key={location} className="mb-12">
-                    <h2 className="text-3xl font-bold text-teal-700 mb-6 py-2 border-b-2 border-teal-300">
-                        📍 {location.replace('_', ' ')}
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {parks.filter(p => p.location === location).map(park => (
-                            <ParkCard key={park.id} park={park} />
-                        ))}
-                    </div>
-                </div>
-            ))}
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4">
+        
+        {/* Encabezado de la Sección */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-3 bg-green-100 rounded-full">
+            <Trees className="w-8 h-8 text-green-700" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Parques y Naturaleza</h1>
+            <p className="text-gray-600 mt-1">Explora los pulmones verdes y reservas naturales de la región.</p>
+          </div>
         </div>
-    );
+
+        {/* Grid de Resultados */}
+        {parkExperiences.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {parkExperiences.map((experience) => (
+              <ExperienceCard key={experience.id} experience={experience} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-dashed border-gray-300">
+            <p className="text-gray-500 text-lg">No encontramos parques disponibles por el momento.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

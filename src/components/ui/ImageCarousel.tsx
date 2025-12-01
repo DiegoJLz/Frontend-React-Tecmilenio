@@ -1,58 +1,116 @@
-// src/components/ui/ImageCarousel.tsx
-"use client";
-import React, { useState, useCallback, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react'; 
-import ImageCard from '@/components/ui/ImageCard'; 
-import { TourItem } from '@/lib/data'; // <-- Asegúrate de que TourItem esté importado
+'use client'; //
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Experience } from '@/types'; // Usamos la nueva interfaz
 
-// AGREGAR ESTA INTERFAZ AQUÍ
 interface ImageCarouselProps {
-    images: TourItem[];
-    onImageClick: (tour: TourItem) => void;
+  items: Experience[];
+  autoPlay?: boolean;
+  interval?: number;
 }
-// FIN DE LA INTERFAZ AGREGADA
 
-const ImageCarousel: React.FC<ImageCarouselProps> = React.memo(({ images, onImageClick }) => {
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [isMounted, setIsMounted] = useState(false); 
+export const ImageCarousel: React.FC<ImageCarouselProps> = ({ 
+  items, 
+  autoPlay = true, 
+  interval = 5000 
+}) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-    
-    // ... (goToNext, goToPrevious logic)
-    const goToNext = useCallback(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, [images.length]);
+  // Lógica de Autoplay
+  useEffect(() => {
+    if (!autoPlay || items.length === 0) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % items.length);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [autoPlay, interval, items.length]);
 
-    const goToPrevious = useCallback(() => {
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
-    }, [images.length]);
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev === 0 ? items.length - 1 : prev - 1));
+  };
 
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % items.length);
+  };
 
-    // Renderiza placeholder para prevenir el error de hidratación (SSR mismatch)
-    if (!isMounted) {
-        return <div className="w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden shadow-xl mb-12 bg-gray-200 animate-pulse" />;
-    }
+  if (!items || items.length === 0) return null;
 
-    return (
-        <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden shadow-xl mb-12">
-            {images.length > 0 && (
-                <ImageCard 
-                    title={images[currentIndex].title}
-                    description={images[currentIndex].description}
-                    imageUrl={images[currentIndex].imageUrl}
-                    onClick={() => onImageClick(images[currentIndex])}
-                />
-            )}
-            <button onClick={goToPrevious} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-300 z-10 focus:outline-none focus:ring-2 focus:ring-amber-400" aria-label="Imagen anterior">
-                <ChevronLeft size={24} />
-            </button>
-            <button onClick={goToNext} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-300 z-10 focus:outline-none focus:ring-2 focus:ring-amber-400" aria-label="Imagen siguiente">
-                <ChevronRight size={24} />
-            </button>
-        </div>
-    );
-});
-ImageCarousel.displayName = 'ImageCarousel';
+  return (
+    <div className="relative h-[500px] w-full overflow-hidden rounded-xl group">
+      {/* Imágenes */}
+      <div 
+        className="flex h-full transition-transform duration-700 ease-in-out"
+        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+      >
+        {items.map((item) => {
+          // Extraemos la imagen principal o usamos un placeholder
+          const bgImage = item.images?.find(img => img.is_primary)?.image_url 
+            || item.images?.[0]?.image_url 
+            || '/placeholder.jpg';
+
+          return (
+            <div key={item.id} className="relative min-w-full h-full">
+              <Image
+                src={bgImage}
+                alt={item.title}
+                fill
+                className="object-cover brightness-75"
+                priority={true}
+              />
+              
+              {/* Contenido sobre la imagen */}
+              <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-4 bg-black/20">
+                <span className="mb-2 px-3 py-1 bg-yellow-400 text-black text-xs font-bold uppercase tracking-wider rounded-full">
+                  {item.category?.name || 'Destacado'}
+                </span>
+                <h2 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">
+                  {item.title}
+                </h2>
+                <p className="text-lg md:text-xl max-w-2xl mb-8 drop-shadow-md line-clamp-2">
+                  {item.summary}
+                </p>
+                <Link 
+                  href={`/experience/${item.slug}`}
+                  className="px-8 py-3 bg-white text-black font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg"
+                >
+                  Ver Detalles
+                </Link>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Flechas de Navegación */}
+      <button 
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <ChevronLeft size={32} />
+      </button>
+      <button 
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <ChevronRight size={32} />
+      </button>
+
+      {/* Indicadores (Puntitos) */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+        {items.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCurrentIndex(idx)}
+            className={`w-3 h-3 rounded-full transition-all ${
+              idx === currentIndex ? 'bg-white w-8' : 'bg-white/50'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default ImageCarousel;
