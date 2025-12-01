@@ -316,6 +316,15 @@ export const MOCK_LANDING_HIGHLIGHTS: LandingHighlight[] = [
         icon: 'Globe'
     }
 ];
+export interface ParkItem { // <--- FIX 1: Exportar esta interfaz
+    id: string;
+    title: string;
+    description: string;
+    slug: string;
+    imageUrl: string; // <-- La necesita la tarjeta
+    location: string; // <-- La necesita la tarjeta
+    details: string[]; // <-- La necesita la tarjeta
+}
 
 // --- 4. CONFIGURACIÓN UI (Constantes faltantes: FIX) ---
 // FIX 1: Exportar colores (Resuelve errores en layout.tsx, Footer.tsx, Header.tsx)
